@@ -19,7 +19,9 @@ const _handleCmdOperation = async (cmdArgs, commandUsage, fnc) => {
     _isCommandOnly(cmdArgs) && CONSOLE_LOG.info(commandUsage) && process.exit(0);
 
     let configuration = await readConfiguration(cmdArgs);
-    let proceed = cmdArgs.noprompt || await promptProceedAction(configuration, cmdArgs);
+    let proceed = cmdArgs.noprompt ||
+        (configuration.length === 1 && configuration[0].uuApp.shortName === "no-env") ||
+        await promptProceedAction(configuration, cmdArgs);
     proceed && await processEnvironment(configuration, (environment) => fnc(cmdArgs, environment));
 }
 

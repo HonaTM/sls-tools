@@ -67,6 +67,12 @@ const COMMAND_TO_CONFIG_MAPPING = {
     }
 }
 
+const COMMAND_TO_CONFIG_MAPPING_NO_ENV = {
+    execute: {
+        configLoad: (configuration, cmdArgs) => processParams(configuration, cmdArgs)
+    }
+}
+
 const readConfiguration = async cmdArgs => {
     if (cmdArgs.noconfig) {
         CONSOLE_LOG.info("Execution without config file requested. Proceeding...");
@@ -85,8 +91,16 @@ const readConfiguration = async cmdArgs => {
     configuration = await resolveBookkitAuthorization(configuration);
     configuration = await resolveTempDir(configuration);
 
-    for (const configLoadFnc of COMMAND_TO_CONFIG_MAPPING[cmdArgs.command].configLoad) {
+    if (configuration.length === 1 && configuration[0].uuApp.shortName === "no-env") {
+        !COMMAND_TO_CONFIG_MAPPING_NO_ENV[cmdArgs.command] &&
+            CONSOLE_LOG.info(`Command "${cmdArgs.command}" not defined for no-env!`) &&
+            process.exit(0)
+        const configLoadFnc = COMMAND_TO_CONFIG_MAPPING_NO_ENV[cmdArgs.command].configLoad
         configuration = await configLoadFnc(configuration, cmdArgs);
+    } else {
+        for (const configLoadFnc of COMMAND_TO_CONFIG_MAPPING[cmdArgs.command].configLoad) {
+            configuration = await configLoadFnc(configuration, cmdArgs);
+        }
     }
 
     return configuration;
