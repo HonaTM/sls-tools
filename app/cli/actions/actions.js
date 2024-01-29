@@ -6,7 +6,7 @@ const { cmdDependencyManagerArguments } = require("../../command/dependency-mana
 const { cmdCredentialsManagerArguments } = require("../../command/credentials-manager/cli/arguments");
 const { cmdCompareArguments } = require("../../command/compare/cli/arguments");
 const { cmdExecuteArguments } = require("../../command/execute/cli/arguments");
-const { runExport, runHelp, runCheck, runDependencyManager, runCompare, runCredentialsManager, runExecute} = require('../../sls-tools');
+const { runExport, runHelp, runCheck, runDependencyManager, runCompare, runCredentialsManager, runExecute, runExecuteNoEnv } = require('../../sls-tools');
 
 const COMMANDS = {
   COMMAND_HELP: 'help',
@@ -15,7 +15,8 @@ const COMMANDS = {
   COMMAND_DEPENDENCY_MANAGER: 'dependency-manager',
   COMMAND_CREDENTIALS_MANAGER: 'credentials-manager',
   COMMAND_COMPARE: 'compare',
-  COMMAND_EXECUTE: 'execute'
+  COMMAND_EXECUTE: 'execute',
+  COMMAND_EXECUTE_NO_ENV: 'executeNoEnv'
 };
 
 const actions = {
@@ -53,6 +54,11 @@ const actions = {
     condition: () => handleCondition(cmdArguments.command === COMMANDS.COMMAND_EXECUTE, cmdExecuteArguments),
     actionArguments: () => cmdExecuteArguments,
     action: async () => await runExecute({...cmdArguments, ...cmdExecuteArguments})
+  },
+  runExecuteNoEnv: {
+    condition: () => handleCondition(cmdArguments.command === COMMANDS.COMMAND_EXECUTE_NO_ENV, cmdExecuteArguments),
+    actionArguments: () => cmdExecuteArguments,
+    action: async () => await runExecuteNoEnv({...cmdArguments, ...cmdExecuteArguments})
   }
 };
 

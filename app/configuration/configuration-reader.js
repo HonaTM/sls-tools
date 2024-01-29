@@ -64,12 +64,12 @@ const COMMAND_TO_CONFIG_MAPPING = {
             (configuration) => resolveCmdToken(configuration, EXECUTE_ITEM_TYPE),
             (configuration, cmdArgs) => processParams(configuration, cmdArgs)
         ]
-    }
-}
-
-const COMMAND_TO_CONFIG_MAPPING_NO_ENV = {
-    execute: {
-        configLoad: (configuration, cmdArgs) => processParams(configuration, cmdArgs)
+    },
+    executeNoEnv: {
+        configLoad: [
+            (configuration) => resolveTempDirForType(configuration, EXECUTE_ITEM_TYPE),
+            (configuration, cmdArgs) => processParams(configuration, cmdArgs)
+        ]
     }
 }
 
@@ -91,16 +91,8 @@ const readConfiguration = async cmdArgs => {
     configuration = await resolveBookkitAuthorization(configuration);
     configuration = await resolveTempDir(configuration);
 
-    if (configuration.length === 1 && configuration[0].uuApp.shortName === "no-env") {
-        !COMMAND_TO_CONFIG_MAPPING_NO_ENV[cmdArgs.command] &&
-            CONSOLE_LOG.info(`Command "${cmdArgs.command}" not defined for no-env!`) &&
-            process.exit(0)
-        const configLoadFnc = COMMAND_TO_CONFIG_MAPPING_NO_ENV[cmdArgs.command].configLoad
+    for (const configLoadFnc of COMMAND_TO_CONFIG_MAPPING[cmdArgs.command].configLoad) {
         configuration = await configLoadFnc(configuration, cmdArgs);
-    } else {
-        for (const configLoadFnc of COMMAND_TO_CONFIG_MAPPING[cmdArgs.command].configLoad) {
-            configuration = await configLoadFnc(configuration, cmdArgs);
-        }
     }
 
     return configuration;

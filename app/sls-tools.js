@@ -19,9 +19,7 @@ const _handleCmdOperation = async (cmdArgs, commandUsage, fnc) => {
     _isCommandOnly(cmdArgs) && CONSOLE_LOG.info(commandUsage) && process.exit(0);
 
     let configuration = await readConfiguration(cmdArgs);
-    let proceed = cmdArgs.noprompt ||
-        (configuration.length === 1 && configuration[0].uuApp.shortName === "no-env") ||
-        await promptProceedAction(configuration, cmdArgs);
+    let proceed = cmdArgs.noprompt || await promptProceedAction(configuration, cmdArgs);
     proceed && await processEnvironment(configuration, (environment) => fnc(cmdArgs, environment));
 }
 
@@ -85,6 +83,16 @@ const runExecute = async (cmdArgs) => {
     await _handleCmdOperation(cmdArgs, executeCommandUsage, execute);
 }
 
+/**
+ * Run execute without env command entry point
+ *
+ * @param cmdArgs
+ * @returns {Promise<void>}
+ */
+const runExecuteNoEnv = async (cmdArgs) => {
+    await _handleCmdOperation(cmdArgs, executeCommandUsage, execute);
+}
+
 const runHelp = (usage) => {
     CONSOLE_LOG.info(usage);
 }
@@ -100,5 +108,6 @@ module.exports = {
     runCredentialsManager,
     runHelp,
     runCompare,
-    runExecute
+    runExecute,
+    runExecuteNoEnv
 }
